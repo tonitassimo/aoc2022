@@ -8,7 +8,8 @@ def solve():
     for line in puzzle_input:
         line = line[:-1]
         process_line(line)
-    filesystem.print()
+    total_size = calculate()
+    print(total_size)
 
 
 def process_line(line):
@@ -41,3 +42,11 @@ def handle_result(result):
     else:
         [file_size, file_name] = result.split()
         filesystem.add_file(file_size, file_name)
+
+
+def calculate():
+    filesystem.root.calculate_size()
+    directories = filesystem.get_directories()
+    result = [(directory.name, directory.size) for directory in directories if directory.size <= 100000]
+    total_size = sum([t[1] for t in result], 0)
+    return total_size
