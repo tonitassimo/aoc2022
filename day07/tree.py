@@ -7,9 +7,9 @@ class File:
 
 class Directory:
 
-    def __init__(self, name: str):
+    def __init__(self, name):
         self.name = name
-        self.full_path: list[str] = []
+        self.full_path = []
         self.parent = None
         self.directories: list[Directory] = []
         self.files: list[File] = []
