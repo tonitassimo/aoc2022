@@ -1,8 +1,8 @@
 class File:
 
-    def __init__(self, name: str, size: int):
-        self.name = name
+    def __init__(self, size, name):
         self.size = size
+        self.name = name
 
 
 class Directory:
@@ -33,7 +33,7 @@ class Filesystem:
     def get_root(self):
         return self.root
 
-    def cd_into(self, directory_name: str):
+    def cd_into(self, directory_name):
         self.current = next(directory for directory in self.current.directories if directory.name == directory_name)
 
     def cd_out(self):
@@ -42,7 +42,7 @@ class Filesystem:
     def cd_to_root(self):
         self.current = self.root
 
-    def add_directory(self, directory_name: str):
+    def add_directory(self, directory_name):
         directory = Directory(directory_name)
         directory.parent = self.current
         full_path = self.current.full_path.copy()
@@ -50,13 +50,16 @@ class Filesystem:
         directory.full_path = full_path
         self.current.add_directory(directory)
 
-    def add_file(self, file: File):
+    def add_file(self, file_size, file_name):
+        file = File(file_size, file_name)
         self.current.add_file(file)
 
     def print(self):
         self._print(self.root, 0)
 
     def _print(self, node: Directory, level):
-        print('\t' * level + node.name)
+        print('\t' * level + "dir " + node.name)
+        for file in node.files:
+            print('\t' * (level + 1) + file.size + " " + file.name)
         for directory in node.directories:
             self._print(directory, level + 1)

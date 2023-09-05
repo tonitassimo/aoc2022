@@ -11,20 +11,21 @@ def solve():
     filesystem.print()
 
 
-def process_line(line: str):
+def process_line(line):
     if line.startswith("$"):
-        handle_command(line[2:])
+        command = line[2:]
+        handle_command(command)
     else:
         handle_result(line)
 
 
-def handle_command(command: str):
+def handle_command(command):
     if command.startswith("cd"):
         path = command.split()[1]
         handle_cd(path)
 
 
-def handle_cd(directory_name: str):
+def handle_cd(directory_name):
     if directory_name == "..":
         filesystem.cd_out()
     elif directory_name == "/":
@@ -33,7 +34,10 @@ def handle_cd(directory_name: str):
         filesystem.cd_into(directory_name)
 
 
-def handle_result(result: str):
+def handle_result(result):
     if result.startswith("dir"):
         directory_name = result.split()[1]
         filesystem.add_directory(directory_name)
+    else:
+        [file_size, file_name] = result.split()
+        filesystem.add_file(file_size, file_name)
