@@ -7,7 +7,7 @@ class Matrix:
         self._current_x = 0
         self._current_y = 0
 
-    def set_current_field(self, x, y):
+    def _set_current_field(self, x, y):
         self._current_x = x
         self._current_y = y
 
@@ -15,7 +15,7 @@ class Matrix:
         self._fields[y][x] = value
 
     def _reset_position(self):
-        self.set_current_field(0, 0)
+        self._set_current_field(0, 0)
 
     def from_string(self, puzzle):
         self._reset_position()
