@@ -1,16 +1,11 @@
-from day08.matrix import Matrix, TreeGrid, Position, Tree
+from day08.matrix import Matrix, TreeGrid
 
 
 def solve():
-    puzzle = open("day08/test.txt", "r").readlines()
-    matrix = Matrix(5, 5)
+    puzzle = open("day08/data.txt", "r").readlines()
+    matrix = Matrix(99, 99)
     matrix.from_string(puzzle)
-    matrix.print()
-
     tree_grid = TreeGrid(matrix)
-    print(matrix.get_tree_at(Position(2, 2)))
-    result = tree_grid.is_tree_visible(Tree(Position(2, 2), 3))
-    print(result)
-
-    count = tree_grid.count_visible_trees()
+    tree_grid.walk_grid()
+    count = tree_grid.get_visible_tree_count()
     print(count)

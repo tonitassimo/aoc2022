@@ -35,6 +35,18 @@ class Matrix:
     def get_tree_at(self, position: Position):
         return self.fields[position.y][position.x]
 
+    def get_upper_row(self):
+        return self.fields[0]
+
+    def get_lower_row(self):
+        return self.fields[self._y_length - 1]
+
+    def get_left_column(self):
+        return [self.get_tree_at(Position(0, y)) for y in range(self._y_length)]
+
+    def get_right_column(self):
+        return [self.get_tree_at(Position(self._x_length - 1, y)) for y in range(self._y_length)]
+
 
 class Tree:
 
@@ -57,41 +69,44 @@ class TreeGrid:
         self._matrix = matrix
         self._x_length, self._y_length = self._matrix.get_dimensions()
 
-    def _visible_from_left(self, tree: Tree):
-        if tree.position.x == 0:
-            return True
-        left_neighbour = self._matrix.get_tree_at(Position(tree.position.x - 1, tree.position.y))
-        return self._visible_from_left(left_neighbour) and tree.value > left_neighbour.value
-
-    def _visible_from_right(self, tree: Tree):
-        if tree.position.x == self._x_length - 1:
-            return True
-        right_neighbour = self._matrix.get_tree_at(Position(tree.position.x + 1, tree.position.y))
-        return self._visible_from_right(right_neighbour) and tree.value > right_neighbour.value
-
-    def _visible_from_above(self, tree: Tree):
-        if tree.position.y == 0:
-            return True
-        above_neighbour = self._matrix.get_tree_at(Position(tree.position.x, tree.position.y - 1))
-        return self._visible_from_above(above_neighbour) and tree.value > above_neighbour.value
-
-    def _visible_from_below(self, tree: Tree):
-        if tree.position.y == self._y_length - 1:
-            return True
-        below_neighbour = self._matrix.get_tree_at(Position(tree.position.x, tree.position.y + 1))
-        return self._visible_from_below(below_neighbour) and tree.value > below_neighbour.value
-
-    # todo: tree.value needs to be greater than max of neighbours in a row -> keep track of the current maximum
-    def is_tree_visible(self, tree: Tree) -> bool:
-        result = self._visible_from_left(tree) or self._visible_from_right(tree) or self._visible_from_above(
-            tree) or self._visible_from_below(tree)
-        tree.visible = result
-        return result
-
-    def count_visible_trees(self):
+    def get_visible_tree_count(self):
         visible_trees = 0
         for row in self._matrix.fields:
             for tree in row:
-                if self.is_tree_visible(tree):
+                if tree.visible:
                     visible_trees += 1
         return visible_trees
+
+    def walk_grid(self):
+        left_edge_with_func = (self._matrix.get_left_column(), self._walk_right)
+        right_edge_with_func = (self._matrix.get_right_column(), self._walk_left)
+        upper_edge_with_func = (self._matrix.get_upper_row(), self._walk_down)
+        lower_edge_with_func = (self._matrix.get_lower_row(), self._walk_up)
+
+        for direction_tuple in [left_edge_with_func, right_edge_with_func, upper_edge_with_func, lower_edge_with_func]:
+            for tree in direction_tuple[0]:
+                direction_tuple[1](tree)
+
+    def _walk_right(self, tree: Tree, current_max=-1):
+        self._walk(tree, tree.position.x < self._x_length - 1, self._walk_right,
+                   Position(tree.position.x + 1, tree.position.y), current_max)
+
+    def _walk_left(self, tree: Tree, current_max=-1):
+        self._walk(tree, tree.position.x > 0, self._walk_left, Position(tree.position.x - 1, tree.position.y),
+                   current_max)
+
+    def _walk_up(self, tree: Tree, current_max=-1):
+        self._walk(tree, tree.position.y > 0, self._walk_up, Position(tree.position.x, tree.position.y - 1),
+                   current_max)
+
+    def _walk_down(self, tree: Tree, current_max=-1):
+        self._walk(tree, tree.position.y < self._y_length - 1, self._walk_down,
+                   Position(tree.position.x, tree.position.y + 1), current_max)
+
+    def _walk(self, tree: Tree, condition, next_step, next_position, current_max):
+        if tree.value > current_max:
+            current_max = tree.value
+            tree.visible = True
+        if condition:
+            next_tree = self._matrix.get_tree_at(next_position)
+            next_step(next_tree, current_max)
