@@ -1,4 +1,4 @@
-import day25.solution as day25_solution
+import day24.solution as day24_solution
 
 if __name__ == '__main__':
-    day25_solution.solve()
+    day24_solution.solve()
